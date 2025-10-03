@@ -10,6 +10,7 @@ services:
     networks: [jenkins]
     volumes:
       - docker_cache:/var/lib/docker
+      - jenkins_home:/var/jenkins_home
 
     healthcheck:
       test: ["CMD-SHELL", "apk add --no-cache curl >/dev/null 2>&1 && curl -fs http://localhost:2375/_ping || exit 1"]
