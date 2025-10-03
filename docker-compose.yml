@@ -3,7 +3,6 @@ version: "3.9"
 services:
   dind:
     image: docker:24-dind
-    container_name: dind 
     privileged: true
     command: ["--host=tcp://0.0.0.0:2375", "--storage-driver=overlay2"]
     environment:
@@ -11,15 +10,7 @@ services:
     networks: [jenkins]
     volumes:
       - docker_cache:/var/lib/docker
-      - jenkins_home:/var/jenkins_home
 
-    healthcheck:
-      test: ["CMD-SHELL", "apk add --no-cache curl >/dev/null 2>&1 && curl -fs http://localhost:2375/_ping || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    
   jenkins:
     build:
       context: ./jenkins
@@ -32,14 +23,10 @@ services:
     environment:
       - DOCKER_HOST=tcp://dind:2375
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
-    depends_on:
-      dind:
-        condition: service_healthy
+    depends_on: [dind]
     networks: [jenkins]
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /usr/bin/docker:/usr/bin/docker:ro     
-    restart: unless-stopped
 
 networks:
   jenkins:
